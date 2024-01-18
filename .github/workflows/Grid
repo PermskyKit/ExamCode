@@ -1,0 +1,3 @@
+    <Grid>
+        <DataGrid x:Name="dataGrid" AutoGenerateColumns="True"/>
+    </Grid>
