@@ -1,0 +1,63 @@
+using System;
+using System.Data;
+using System.Data.SqlClient;
+using System.Windows;
+using System.Windows.Controls;
+
+
+namespace ExamTest
+{
+    /// <summary>
+    /// Interaction logic for MainWindow.xaml
+    /// </summary>
+    public partial class MainWindow : Window
+    {
+        public MainWindow()
+        {
+            InitializeComponent();
+            LoadData();
+        }
+
+
+        private void LoadData()
+        {
+            try
+            {
+                using (SqlConnection connection = new SqlConnection("Data Source = PERMSKYKITDESKT; Initial Catalog = master; Integrated Security = True"))
+                {
+                    connection.Open();
+
+                    using (SqlCommand command = new SqlCommand("SELECT * FROM SpProducts", connection))
+                    {
+                        using (SqlDataAdapter adapter = new SqlDataAdapter(command))
+                        {
+                            DataTable dataTable = new DataTable();
+                            adapter.Fill(dataTable);
+
+                            // Добавление нового столбца с именем "Сумма"
+                            DataColumn sumColumn = new DataColumn("Сумма", typeof(int));
+                            dataTable.Columns.Add(sumColumn);
+
+                            // Заполнение нового столбца суммой значений второго и третьего столбцов
+                            foreach (DataRow row in dataTable.Rows)
+                            {
+                                int column2Value = Convert.ToInt32(row["Price"]);
+                                int column3Value = Convert.ToInt32(row["Count"]);
+                                row["Сумма"] = column2Value * column3Value;
+                            }
+
+                            // Предполагая, что ваш DataGrid называется "dataGrid" в XAML
+                            dataGrid.ItemsSource = dataTable.DefaultView;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка при загрузке данных: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+    }
+}
+
